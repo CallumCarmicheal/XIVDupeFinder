@@ -10,6 +10,8 @@ This can be avoided by enabling the ALT modifier setting which will only run the
 
 # Image of usage
 
-[[https://github.com/CallumCarmicheal/XIVDupeFinder/blob/master/Images/Random%20Colours|Image of plugin using pastel colours]]
+## Using randomized pastel colours
+![Pastel Colours](https://github.com/CallumCarmicheal/XIVDupeFinder/blob/master/Images/Random%20Colours.png)
 
-[[https://github.com/CallumCarmicheal/XIVDupeFinder/blob/master/Images/Inventory%20Duplicates.png|Image of plugin in action]]
+## Using user specified colours
+![Flat Colours](https://github.com/CallumCarmicheal/XIVDupeFinder/blob/master/Images/Inventory%20Duplicates.png)
