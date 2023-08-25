@@ -20,17 +20,20 @@ using System.Collections.Generic;
 using System.Linq;
 using CriticalCommonLib.Time;
 using Dalamud.Data;
+using Dalamud.Logging;
+using Dalamud.Game.ClientState;
 
 namespace XIVDupeFinder {
     public sealed class Plugin : IDalamudPlugin, IDisposable {
         public string Name => "XIVDupeFinder";
         private const string CommandName = "/xlinvdupes";
 
-    // Dalamud Properties
-        private static DalamudPluginInterface PluginInterface { get; set; } = null!;
-        private static CommandManager CommandManager { get; set; } = null!;
-        public static Framework Framework { get; private set; } = null!;
-        public static GameGui GameGui { get; private set; } = null!;
+        // Dalamud Properties
+        [PluginService] public static ClientState ClientState { get; private set; } = null!;
+        [PluginService] private static DalamudPluginInterface PluginInterface { get; set; } = null!;
+        [PluginService] private static CommandManager CommandManager { get; set; } = null!;
+        [PluginService] public static Framework Framework { get; private set; } = null!;
+        [PluginService] public static GameGui GameGui { get; private set; } = null!;
         [PluginService] public static DataManager Data { get; private set; } = null!;
         
     // Own Windows, Properties
@@ -50,16 +53,7 @@ namespace XIVDupeFinder {
         public static InventoryMonitor InventoryMonitor { get; private set; } = null!;
         public static InventoryScanner InventoryScanner { get; private set; } = null!;
 
-        public Plugin(
-            [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
-            [RequiredVersion("1.0")] CommandManager         commandManager,
-            [RequiredVersion("1.0")] GameGui                gameGui,
-            [RequiredVersion("1.0")] Framework              framework
-        ) {
-            PluginInterface = pluginInterface;
-            CommandManager = commandManager;
-            Framework = framework;
-
+        public Plugin() {
             Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             Configuration.Initialize(PluginInterface);
 
@@ -74,7 +68,8 @@ namespace XIVDupeFinder {
             //    throw new Exception("Failed to load CriticalCommonLib: " + exceptionMessage);
             //}
 
-            Service? service = pluginInterface.Create<Service>(); 
+
+            Service? service = PluginInterface.Create<Service>(); 
             Service.SeTime = new SeTime();
             Service.ExcelCache = new ExcelCache(Data, false, false, false);
             Service.ExcelCache.PreCacheItemData();
@@ -155,9 +150,22 @@ namespace XIVDupeFinder {
             // in response to the slash command, just display our main ui
             MainWindow.IsOpen = true;
         }
-
-        private void DrawUI() {
+        
+        private unsafe void DrawUI() {
             WindowSystem.Draw();
+
+            if (Configuration == null || ClientState.LocalPlayer == null || _manager == null) 
+                return;
+
+            // If we do not have an active inventory close.
+            if (_manager.ActiveInventory == null)
+                return;
+
+            // Apply our highlighting
+            if (Configuration.HighlightDuplicates) {
+                _manager.ActiveInventory.DiscoverDuplicates();
+                _manager.ActiveInventory.UpdateHighlights();
+            }
         }
 
         public void DrawConfigUI() {

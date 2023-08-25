@@ -24,12 +24,18 @@ public class ConfigWindow : Window, IDisposable
 
     public override void Draw()
     {
+        bool boolValue;
+
         // can't ref a property, so use a local copy
-        var configValue = this.Configuration.TestProperty;
-        if (ImGui.Checkbox("Random Config Bool", ref configValue))
-        {
-            this.Configuration.TestProperty = configValue;
-            // can save immediately on change, if you don't want to provide a "Save and Close" button
+        boolValue = this.Configuration.HighlightDuplicates;
+        if (ImGui.Checkbox("Highlight Duplicates", ref boolValue)) {
+            this.Configuration.HighlightDuplicates = boolValue;
+            this.Configuration.Save();
+        }
+
+        boolValue = this.Configuration.HightlightTabs;
+        if (ImGui.Checkbox("Highlight Inventory Tabs", ref boolValue)) {
+            this.Configuration.HightlightTabs = boolValue;
             this.Configuration.Save();
         }
     }

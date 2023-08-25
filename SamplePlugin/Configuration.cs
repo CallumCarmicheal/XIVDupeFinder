@@ -13,6 +13,7 @@ namespace XIVDupeFinder
         public bool TestProperty { get; set; } = true;
 
 
+        public bool HighlightDuplicates { get; set; } = true;
         public bool HightlightTabs { get; set; } = true;
 
 
