@@ -42,7 +42,6 @@ namespace XIVDupeFinder {
         private static InventoriesManager _manager = null!;
 
         private ConfigWindow ConfigWindow { get; init; }
-        private MainWindow MainWindow { get; init; }
 
     // Critical Common Libs 
         public static FrameworkService FrameworkService { get; private set; } = null!;
@@ -52,22 +51,11 @@ namespace XIVDupeFinder {
         public static OdrScanner OdrScanner { get; private set; } = null!;
         public static InventoryMonitor InventoryMonitor { get; private set; } = null!;
         public static InventoryScanner InventoryScanner { get; private set; } = null!;
+        public static CraftMonitor CraftMonitor { get; private set; } = null!;
 
         public Plugin() {
             Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             Configuration.Initialize(PluginInterface);
-
-            //if (service == null || Service.Data == null || Service.Framework == null) {
-            //    var errors = new List<string>();
-            //    errors.AddRange(new string[] {
-            //        Service.Data == null ? "Service.Data is null" : "",
-            //        Service.Framework == null ? "Service.Data is null" : "",
-            //    });
-
-            //    var exceptionMessage = string.Join(", ", errors.Where(x => string.IsNullOrWhiteSpace(x)));
-            //    throw new Exception("Failed to load CriticalCommonLib: " + exceptionMessage);
-            //}
-
 
             Service? service = PluginInterface.Create<Service>(); 
             Service.SeTime = new SeTime();
@@ -77,18 +65,14 @@ namespace XIVDupeFinder {
             GameInterface = new GameInterface();
             CharacterMonitor = new CharacterMonitor();
             GameUi = new GameUiManager();
+            CraftMonitor = new CraftMonitor(GameUi);
             OdrScanner = new OdrScanner(CharacterMonitor);
             InventoryScanner = new InventoryScanner(CharacterMonitor, GameUi, GameInterface, OdrScanner);
+            InventoryMonitor = new InventoryMonitor(CharacterMonitor, CraftMonitor, InventoryScanner, FrameworkService);
+            InventoryScanner.Enable();
 
-            // you might normally want to embed resources and load them from the manifest stream
-            var imagePath = Path.Combine(PluginInterface.AssemblyLocation.Directory?.FullName!, "goat.png");
-            var goatImage = PluginInterface.UiBuilder.LoadImage(imagePath);
-
-            this.ConfigWindow = new ConfigWindow(this);
-            this.MainWindow = new MainWindow(this, goatImage);
-
+            ConfigWindow = new ConfigWindow(this);
             WindowSystem.AddWindow(ConfigWindow);
-            WindowSystem.AddWindow(MainWindow);
 
             CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand) {
                 HelpMessage = "Displays the configuration window for inventory dupe finder."
@@ -111,9 +95,7 @@ namespace XIVDupeFinder {
 
         public void Dispose() {
             WindowSystem.RemoveAllWindows();
-
             ConfigWindow.Dispose();
-            MainWindow.Dispose();
 
             CommandManager.RemoveHandler(CommandName);
 
@@ -122,23 +104,21 @@ namespace XIVDupeFinder {
         }
 
         public void Dispose(bool disposing) {
-            if (!disposing) {
+            if (!disposing) 
                 return;
-            }
 
             ClearHighlights();
 
-            //InventoryMonitor.Dispose();
+            InventoryMonitor.Dispose();
             GameUi.Dispose();
             CharacterMonitor.Dispose();
-            //CraftMonitor.Dispose();
+            CraftMonitor.Dispose();
             InventoryScanner.Dispose();
             OdrScanner.Dispose();
 
             GameInterface.Dispose();
             Service.ExcelCache.Destroy();
 
-            //_windowSystem.RemoveAllWindows();
             _manager.Dispose();
 
             Framework.Update += Update;
@@ -148,7 +128,7 @@ namespace XIVDupeFinder {
 
         private void OnCommand(string command, string args) {
             // in response to the slash command, just display our main ui
-            MainWindow.IsOpen = true;
+            ConfigWindow.IsOpen = true;
         }
         
         private unsafe void DrawUI() {

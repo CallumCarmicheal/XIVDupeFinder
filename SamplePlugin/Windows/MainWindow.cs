@@ -31,12 +31,6 @@ public class MainWindow : Window, IDisposable
 
     public override void Draw()
     {
-        ImGui.Text($"The random config bool is {Plugin.Configuration.TestProperty}");
-
-        if (ImGui.Button("Show Settings")) {
-            this.Plugin.DrawConfigUI();
-        }
-
         ImGui.Spacing();
 
         ImGui.Text("Have a goat:");
