@@ -6,7 +6,7 @@ using XIVDupeFinder;
 using System;
 using System.Collections.Generic;
 
-namespace InventorySearchBar.Inventories {
+namespace XIVDupeFinder.Inventories {
     internal class CharacterInventory : Inventory {
         public override string AddonName => throw new NotImplementedException();
         protected override ulong CharacterId => Plugin.CharacterMonitor.ActiveCharacterId;

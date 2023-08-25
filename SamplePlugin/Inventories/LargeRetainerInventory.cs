@@ -5,7 +5,7 @@ using XIVDupeFinder;
 using System;
 using System.Linq;
 
-namespace InventorySearchBar.Inventories {
+namespace XIVDupeFinder.Inventories {
     internal class LargeRetainerInventory : RetainerInventory {
         public override string AddonName => "InventoryRetainerLarge";
         public override int OffsetX => Plugin.Configuration.LargeRetainerInventoryOffset;

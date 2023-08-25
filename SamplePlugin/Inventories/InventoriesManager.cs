@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace InventorySearchBar.Inventories {
+namespace XIVDupeFinder.Inventories {
     internal class InventoriesManager : IDisposable {
         private List<Inventory> _inventories;
         public Inventory? ActiveInventory = null;

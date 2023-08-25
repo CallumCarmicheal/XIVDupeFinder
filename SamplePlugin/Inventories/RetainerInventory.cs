@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace InventorySearchBar.Inventories {
+namespace XIVDupeFinder.Inventories {
     internal class RetainerInventory : Inventory {
         public override string AddonName => "InventoryRetainer";
         protected override ulong CharacterId => Plugin.CharacterMonitor.ActiveRetainer.CharacterId;

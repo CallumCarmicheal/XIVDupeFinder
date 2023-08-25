@@ -5,7 +5,7 @@ using XIVDupeFinder;
 using System;
 using System.Linq;
 
-namespace InventorySearchBar.Inventories {
+namespace XIVDupeFinder.Inventories {
     internal class NormalInventory : CharacterInventory {
         public override string AddonName => "Inventory";
         public override int OffsetX => Plugin.Configuration.NormalInventoryOffset;

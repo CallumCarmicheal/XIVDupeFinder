@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace InventorySearchBar.Inventories {
+namespace XIVDupeFinder.Inventories {
     public abstract unsafe class Inventory {
         public abstract string AddonName { get; }
 

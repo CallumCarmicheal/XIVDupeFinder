@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace InventorySearchBar.Inventories {
+namespace XIVDupeFinder.Inventories {
     internal class ChocoboInventory : Inventory {
         public override string AddonName => "InventoryBuddy";
         protected override ulong CharacterId => Plugin.CharacterMonitor.ActiveCharacterId;

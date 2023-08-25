@@ -14,7 +14,7 @@ using Newtonsoft.Json.Linq;
 using Dalamud.Game;
 using System;
 using FFXIVClientStructs.FFXIV.Client.Graphics.Render;
-using InventorySearchBar.Inventories;
+using XIVDupeFinder.Inventories;
 using CriticalCommonLib.Crafting;
 using System.Collections.Generic;
 using System.Linq;

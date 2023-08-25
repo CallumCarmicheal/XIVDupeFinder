@@ -4,7 +4,7 @@ using XIVDupeFinder;
 
 using System;
 
-namespace InventorySearchBar.Inventories {
+namespace XIVDupeFinder.Inventories {
     internal class LargestInventory : CharacterInventory {
         public override string AddonName => "InventoryExpansion";
         public override int OffsetX => Plugin.Configuration.LargestInventoryOffset;
