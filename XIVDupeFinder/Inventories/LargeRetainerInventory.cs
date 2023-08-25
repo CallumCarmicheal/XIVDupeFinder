@@ -39,10 +39,10 @@ namespace XIVDupeFinder.Inventories {
 
             bool resultsInTab = false;
             if (index == 2) {
-                resultsInTab = _filter != null && _filter[index * 2].Any(b => b == true);
+                resultsInTab = _filter != null && _filter[index * 2].Any(b => b.filtered == true);
             }
             else {
-                resultsInTab = _filter != null && (_filter[index * 2].Any(b => b == true) || _filter[index * 2 + 1].Any(b => b == true));
+                resultsInTab = _filter != null && (_filter[index * 2].Any(b => b.filtered == true) || _filter[index * 2 + 1].Any(b => b.filtered == true));
             }
 
             SetTabHighlight(tab, resultsInTab);

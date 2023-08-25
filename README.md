@@ -8,3 +8,5 @@ Most of the code with minor modiciations inside `XIVDupeFinder\Inventories` is d
 # Image of usage
 
 [[https://github.com/CallumCarmicheal/XIVDupeFinder/blob/master/Images/Inventory%20Duplicates.png|Image of plugin in action]]
+
+[[https://github.com/CallumCarmicheal/XIVDupeFinder/blob/master/Images/Random%20Colours|Image of plugin using pastel colours]]

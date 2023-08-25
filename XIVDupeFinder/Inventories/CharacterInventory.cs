@@ -19,13 +19,13 @@ namespace XIVDupeFinder.Inventories {
 
         }
 
-        protected override List<List<bool>> GetEmptyFilter() {
+        protected override List<List<HighlightItem>> GetEmptyFilter() {
             // 4 grids of 35 items
-            List<List<bool>> emptyFilter = new List<List<bool>>();
+            List<List<HighlightItem>> emptyFilter = new List<List<HighlightItem>>();
             for (int i = 0; i < 4; i++) {
-                List<bool> list = new List<bool>(GridItemCount);
+                List<HighlightItem> list = new List<HighlightItem>(GridItemCount);
                 for (int j = 0; j < GridItemCount; j++) {
-                    list.Add(false);
+                    list.Add(new() { filtered = false, itemId = 0 });
                 }
 
                 emptyFilter.Add(list);

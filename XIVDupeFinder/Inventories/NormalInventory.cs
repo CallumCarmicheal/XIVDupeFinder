@@ -34,7 +34,7 @@ namespace XIVDupeFinder.Inventories {
             if (_node == null || _node->UldManager.NodeListCount < 15) { return; }
 
             AtkResNode* firstBagTab = _node->UldManager.NodeList[15 - index];
-            bool resultsInFirstTab = _filter != null && _filter[index].Any(b => b == true);
+            bool resultsInFirstTab = _filter != null && _filter[index].Any(b => b.filtered == true);
             SetTabHighlight(firstBagTab, resultsInFirstTab);
         }
 

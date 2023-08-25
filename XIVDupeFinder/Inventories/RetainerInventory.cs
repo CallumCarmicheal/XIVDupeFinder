@@ -25,13 +25,13 @@ namespace XIVDupeFinder.Inventories {
             //
         }
 
-        protected override List<List<bool>> GetEmptyFilter() {
+        protected override List<List<HighlightItem>> GetEmptyFilter() {
             // 5 grids of 35 items
-            List<List<bool>> emptyFilter = new List<List<bool>>();
+            List<List<HighlightItem>> emptyFilter = new List<List<HighlightItem>>();
             for (int i = 0; i < 5; i++) {
-                List<bool> list = new List<bool>(GridItemCount);
+                List<HighlightItem> list = new List<HighlightItem>(GridItemCount);
                 for (int j = 0; j < GridItemCount; j++) {
-                    list.Add(false);
+                    list.Add(new() { filtered = false, itemId = 0 });
                 }
 
                 emptyFilter.Add(list);
@@ -64,7 +64,7 @@ namespace XIVDupeFinder.Inventories {
             if (_node == null || _node->UldManager.NodeListCount < _tabIndexStart) { return; }
 
             AtkResNode* tab = _node->UldManager.NodeList[_tabIndexStart - index];
-            bool resultsInTab = _filter != null && _filter[index].Any(b => b == true);
+            bool resultsInTab = _filter != null && _filter[index].Any(b => b.filtered == true);
             SetTabHighlight(tab, resultsInTab);
         }
 

@@ -12,8 +12,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using FFXIVClientStructs.Havok;
+using System.Security.Cryptography;
+using System.Text;
+using System.Drawing;
 
 namespace XIVDupeFinder.Inventories {
+    public struct HighlightItem {
+        public bool filtered;
+        public uint itemId;
+        public (byte R, byte G, byte B) colour;
+    }
+
     public abstract unsafe class Inventory {
         public abstract string AddonName { get; }
 
@@ -24,8 +34,11 @@ namespace XIVDupeFinder.Inventories {
 
         protected AtkUnitBase* _node => (AtkUnitBase*)_addon;
 
-        protected List<List<bool>>? _filter { get; set; } = null!;
-        protected abstract List<List<bool>> GetEmptyFilter();
+        protected List<List<HighlightItem>>? _filter { get; set; } = null!;
+        protected abstract List<List<HighlightItem>> GetEmptyFilter();
+
+        protected UniquePastelColorGenerator uniqueColourGen = new UniquePastelColorGenerator();
+        protected Dictionary<uint, (byte R, byte G, byte B)> dictItemColours = new();
 
         protected abstract ulong CharacterId { get; }
         protected abstract InventoryCategory Category { get; }
@@ -54,28 +67,36 @@ namespace XIVDupeFinder.Inventories {
             List<InventoryItem> items = GetSortedItems();
             var groupedItems = items
                 // Select items that are not fully stacked and can be stacked
-                .Where  ( item => item.Item.StackSize > 1 && item.FullStack == false )
-                .GroupBy( item => item.ItemId + "-" + (item.IsHQ ? "HQ" : "NQ")  )
+                .Where(item => item.Item.StackSize > 1 && item.FullStack == false)
+                .GroupBy(item => item.ItemId + "-" + (item.IsHQ ? "HQ" : "NQ"))
                 .Select(group => new {
                     ItemIdHQ = group.Key,
                     Items = group.ToList(),
                     Count = group.Count()
                 });
 
-            foreach ( var itemGroups in groupedItems ) {
+            foreach (var itemGroups in groupedItems) {
                 try {
                     // Highlight if we have more then 1 item
                     bool highlight = itemGroups.Count > 1;
 
                     try {
                         foreach (InventoryItem item in itemGroups.Items) {
-                            // map
+                            // Map
                             int bagIndex = ContainerIndex(item) - FirstBagOffset;
                             if (_filter.Count > bagIndex) {
-                                List<bool> bag = _filter[bagIndex];
+                                List<HighlightItem> bag = _filter[bagIndex];
                                 int slot = GridItemCount - 1 - item.SortedSlotIndex;
                                 if (bag.Count > slot) {
-                                    bag[slot] = highlight;
+                                    (byte R, byte G, byte B) rgb;
+                                    if (dictItemColours.ContainsKey(item.ItemId) == false) {
+                                        rgb = uniqueColourGen.GetColorNormalisedByte(0, 100);
+                                        dictItemColours.Add(item.ItemId, rgb);
+                                    } else {
+                                        rgb = dictItemColours[item.ItemId];
+                                    }
+
+                                    bag[slot] = new() { filtered = highlight, itemId = item.ItemId, colour = rgb };
                                 }
                             }
                         }
@@ -116,33 +137,40 @@ namespace XIVDupeFinder.Inventories {
             if (grid == null) { return; }
 
             for (int j = startIndex; j < startIndex + GridItemCount; j++) {
-                bool highlight = true;
+                HighlightItem highlightData = new() { filtered = false, itemId = 0 };
                 if (_filter != null && _filter[bagIndex].Count > j - startIndex) {
-                    highlight = _filter[bagIndex][j - startIndex];
+                    highlightData = _filter[bagIndex][j - startIndex];
                 }
 
-                SetNodeHighlight(grid->UldManager.NodeList[j], highlight);
+                SetNodeHighlight(grid->UldManager.NodeList[j], highlightData);
             }
         }
 
-        protected static unsafe void SetNodeHighlight(AtkResNode* node, bool highlight) {
-            node->MultiplyRed   = highlight ? Plugin.Configuration.ItemHighlightColour[0] : (byte)100;
-            node->MultiplyGreen = highlight ? Plugin.Configuration.ItemHighlightColour[1] : (byte)100;
-            node->MultiplyBlue  = highlight ? Plugin.Configuration.ItemHighlightColour[2] : (byte)100;
+        protected static unsafe void SetNodeHighlight(AtkResNode* node, HighlightItem hd) {
+            if (Plugin.Configuration.HighlightRandomColours) {
+                byte r = 100, g = 100, b = 100;
+                
+                if (hd.filtered)
+                    (r, g, b) = hd.colour;
 
-            // node->MultiplyRed   = highlight || !node->IsVisible ? (byte)100 : (byte)100;
-            // node->MultiplyGreen = highlight || !node->IsVisible ? (byte)100 : (byte)100;
-            // node->MultiplyBlue  = highlight || !node->IsVisible ? (byte)100 : (byte)100;
+                node->MultiplyRed = r;
+                node->MultiplyGreen = g;
+                node->MultiplyBlue = b;
+            }
+
+            else {
+                node->MultiplyRed = hd.filtered ? Plugin.Configuration.ItemHighlightColour[0] : (byte)100;
+                node->MultiplyGreen = hd.filtered ? Plugin.Configuration.ItemHighlightColour[1] : (byte)100;
+                node->MultiplyBlue = hd.filtered ? Plugin.Configuration.ItemHighlightColour[2] : (byte)100;
+            }
+
         }
 
         public static unsafe void SetTabHighlight(AtkResNode* tab, bool highlight) {
-            tab->MultiplyRed   = highlight ? Plugin.Configuration.TabHighlightColour[0] : (byte)100;
+            tab->MultiplyRed = highlight ? Plugin.Configuration.TabHighlightColour[0] : (byte)100;
             tab->MultiplyGreen = highlight ? Plugin.Configuration.TabHighlightColour[1] : (byte)100;
-            tab->MultiplyBlue  = highlight ? Plugin.Configuration.TabHighlightColour[2] : (byte)100;
+            tab->MultiplyBlue = highlight ? Plugin.Configuration.TabHighlightColour[2] : (byte)100;
 
-            //tab->MultiplyRed   = highlight ? (byte)200 : (byte)250;
-            //tab->MultiplyGreen = highlight ? (byte)200 : (byte)250;
-            //tab->MultiplyBlue  = highlight ? (byte)200 : (byte)250;
         }
 
         public static unsafe bool GetTabEnabled(AtkComponentBase* tab) {
@@ -155,6 +183,79 @@ namespace XIVDupeFinder.Inventories {
             if (tab->UldManager.NodeListCount < 1) { return false; }
 
             return tab->UldManager.NodeList[1]->IsVisible;
+        }
+
+    }
+
+
+    public class UniquePastelColorGenerator {
+        private HashSet<(int R, int G, int B)> generatedColors = new HashSet<(int, int, int)>();
+        private Random random = new Random();
+
+        public (int R, int G, int B) GenerateColor() {
+            int maxAttempts = 100;
+            (int R, int G, int B) color = (0, 0, 0);
+            for (int attempt = 0; attempt < maxAttempts; attempt++) {
+                color = GenerateUniquePastelColor();
+                if (IsColorDistinct(color)) {
+                    generatedColors.Add(color);
+                    return color;
+                }
+            }
+
+            // return the last colour
+            return color;
+            //throw new Exception("Unable to generate a distinct color.");
+        }
+
+        public (byte R, byte G, byte B) GetColorNormalisedByte(int normMin, int normMax) {
+            var rgb = GenerateColor();
+            (byte R, byte G, byte B) ret = (0, 0, 0);
+
+            ret.R = NormalizeValueToRange(rgb.R, normMin, normMax);
+            ret.G = NormalizeValueToRange(rgb.G, normMin, normMax);
+            ret.B = NormalizeValueToRange(rgb.B, normMin, normMax);
+
+            return ret;
+        }
+
+        private (int R, int G, int B) GenerateUniquePastelColor() {
+            int hue = random.Next(0, 360); // Random hue value
+            double saturation = 0.5; // Constant value for pastel saturation
+            double value = 0.8; // Constant value for pastel brightness
+
+            double angle = hue * Math.PI / 180.0;
+            double x = Math.Cos(angle) * saturation;
+            double y = Math.Sin(angle) * saturation;
+            int r = Convert.ToInt32((x + 1) * value * 255);
+            int g = Convert.ToInt32((y + 1) * value * 255);
+            int b = Convert.ToInt32((x + y + 2) * value * 255);
+
+            return (r, g, b);
+        }
+
+        private bool IsColorDistinct((int R, int G, int B) color) {
+            foreach (var existingColor in generatedColors) {
+                double distance = CalculateColorDistance(color, existingColor);
+                if (distance < 60) // Adjust this threshold to control similarity
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private double CalculateColorDistance((int R, int G, int B) color1, (int R, int G, int B) color2) {
+            int rDiff = color1.R - color2.R;
+            int gDiff = color1.G - color2.G;
+            int bDiff = color1.B - color2.B;
+
+            return Math.Sqrt(rDiff * rDiff + gDiff * gDiff + bDiff * bDiff);
+        }
+
+
+        static byte NormalizeValueToRange(int value, int min, int max) {
+            return (byte)(((double)value / 255) * (max - min) + min);
         }
     }
 }

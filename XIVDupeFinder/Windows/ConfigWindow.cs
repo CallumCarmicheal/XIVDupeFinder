@@ -50,6 +50,12 @@ public class ConfigWindow : Window, IDisposable
             saveChanges = true;
         }
 
+        boolValue = this.Configuration.HighlightRandomColours;
+        if (ImGui.Checkbox("Random Item Colour", ref boolValue)) {
+            this.Configuration.HighlightRandomColours = boolValue;
+            saveChanges = true;
+        }
+
         ImGui.DragInt3("Item Highlight Colour", ref _itemHighlightColour[0], 1, 10, 100);
         if (_itemHighlightColour[0] != Configuration.ItemHighlightColour[0]
                 || _itemHighlightColour[1] != Configuration.ItemHighlightColour[1]

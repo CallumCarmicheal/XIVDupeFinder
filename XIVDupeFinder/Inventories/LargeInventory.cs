@@ -30,11 +30,11 @@ namespace XIVDupeFinder.Inventories {
             if (!Plugin.Configuration.HightlightTabs && !forced) { return; }
 
             AtkResNode* firstBagTab = _node->UldManager.NodeList[70];
-            bool resultsInFirstTab = _filter != null && (_filter[0].Any(b => b == true) || _filter[1].Any(b => b == true));
+            bool resultsInFirstTab = _filter != null && (_filter[0].Any(b => b.filtered == true) || _filter[1].Any(b => b.filtered == true));
             SetTabHighlight(firstBagTab, resultsInFirstTab);
 
             AtkResNode* secondBagTab = _node->UldManager.NodeList[69];
-            bool resultsInSecondTab = _filter != null && (_filter[2].Any(b => b == true) || _filter[3].Any(b => b == true));
+            bool resultsInSecondTab = _filter != null && (_filter[2].Any(b => b.filtered == true) || _filter[3].Any(b => b.filtered == true));
             SetTabHighlight(secondBagTab, resultsInSecondTab);
         }
 

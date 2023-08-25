@@ -9,6 +9,8 @@ namespace XIVDupeFinder
     {
         public int Version { get; set; } = 0;
 
+        public bool HighlightRandomColours { get; set; } = false;
+
         public bool HighlightDuplicates { get; set; } = true;
         public bool HightlightTabs { get; set; } = true;
 
