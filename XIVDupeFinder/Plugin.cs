@@ -25,10 +25,10 @@ using Dalamud.Game.ClientState;
 
 namespace XIVDupeFinder {
     public sealed class Plugin : IDalamudPlugin, IDisposable {
-        public string Name => "XIVDXIVDupeFinderupeFinder";
+        public string Name => "XIVDupeFinder";
         private const string CommandName = "/xlinvdupes";
 
-        // Dalamud Properties
+    // Dalamud Properties
         [PluginService] public static ClientState ClientState { get; private set; } = null!;
         [PluginService] private static DalamudPluginInterface PluginInterface { get; set; } = null!;
         [PluginService] private static CommandManager CommandManager { get; set; } = null!;
@@ -127,7 +127,7 @@ namespace XIVDupeFinder {
         }
 
         private void OnCommand(string command, string args) {
-            // in response to the slash command, just display our main ui
+            // In response to the slash command, just display our main ui
             ConfigWindow.IsOpen = true;
         }
         
