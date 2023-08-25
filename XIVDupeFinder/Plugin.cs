@@ -25,7 +25,7 @@ using Dalamud.Game.ClientState;
 
 namespace XIVDupeFinder {
     public sealed class Plugin : IDalamudPlugin, IDisposable {
-        public string Name => "XIVDupeFinder";
+        public string Name => "XIVDXIVDupeFinderupeFinder";
         private const string CommandName = "/xlinvdupes";
 
         // Dalamud Properties
@@ -38,7 +38,7 @@ namespace XIVDupeFinder {
         
     // Own Windows, Properties
         public static Configuration Configuration { get; private set; } = null!;
-        public static WindowSystem WindowSystem = new("InvDupeFinder");
+        public static WindowSystem WindowSystem = new("XIVDupeFinder");
         private static InventoriesManager _manager = null!;
 
         private ConfigWindow ConfigWindow { get; init; }
