@@ -5,6 +5,7 @@
     "Description": "Highlight stackable items in the inventory that are not stacked.",
     "InternalName": "XIVDupeFinder",
     "ApplicableVersion": "any",
+    "RepoUrl": "https://github.com/CallumCarmicheal/XIVDupeFinder",
     "Tags": [
         "inventory",
         "duplicates",

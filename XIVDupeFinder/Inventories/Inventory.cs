@@ -153,7 +153,7 @@ namespace XIVDupeFinder.Inventories {
 
         protected static unsafe void SetNodeHighlight(AtkResNode* node, HighlightItem hd) {
             if (Plugin.Configuration.HighlightRandomColours) {
-                byte r = 99, g = 99, b = 99;
+                byte r = 100, g = 100, b = 100;
 
                 if (hd.filtered)
                     (r, g, b) = hd.colour;
