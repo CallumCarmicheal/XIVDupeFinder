@@ -78,4 +78,9 @@
     <ItemGroup>
       <None Include="C:\Programming\CSharp\FFXIV\InventoryDupeFinder\SamplePlugin\.editorconfig" />
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\CriticalCommonLib\CriticalCommonLib.csproj" />
+      <ProjectReference Include="..\LuminaSupplemental\src\LuminaSupplemental.Excel\LuminaSupplemental.Excel.csproj" />
+    </ItemGroup>
 </Project>

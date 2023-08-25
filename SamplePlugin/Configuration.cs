@@ -2,7 +2,7 @@ using Dalamud.Configuration;
 using Dalamud.Plugin;
 using System;
 
-namespace InvDupeFinder
+namespace XIVDupeFinder
 {
     [Serializable]
     public class Configuration : IPluginConfiguration

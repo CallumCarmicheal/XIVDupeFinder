@@ -1,0 +1,14 @@
+{
+    "Author": "Callum Carmicheal",
+    "Name": "XIVDupeFinder",
+    "Punchline": "Highlight duplicated items in inventories /xlplugins.",
+    "Description": "Highlight stackable items in the inventory that are not stacked.",
+    "InternalName": "XIVDupeFinder",
+    "ApplicableVersion": "any",
+    "Tags": [
+        "inventory",
+        "duplicates",
+        "dupe",
+        "inv"
+    ]
+}

@@ -3,7 +3,7 @@ using Dalamud.IoC;
 using Dalamud.Plugin;
 using System.IO;
 using Dalamud.Interface.Windowing;
-using InvDupeFinder.Windows;
+using XIVDupeFinder.Windows;
 using CriticalCommonLib.Services;
 using CriticalCommonLib.Services.Ui;
 using CriticalCommonLib;
@@ -16,10 +16,14 @@ using System;
 using FFXIVClientStructs.FFXIV.Client.Graphics.Render;
 using InventorySearchBar.Inventories;
 using CriticalCommonLib.Crafting;
+using System.Collections.Generic;
+using System.Linq;
+using CriticalCommonLib.Time;
+using Dalamud.Data;
 
-namespace InvDupeFinder {
+namespace XIVDupeFinder {
     public sealed class Plugin : IDalamudPlugin, IDisposable {
-        public string Name => "Inventory Dupe Finder";
+        public string Name => "XIVDupeFinder";
         private const string CommandName = "/xlinvdupes";
 
     // Dalamud Properties
@@ -27,7 +31,8 @@ namespace InvDupeFinder {
         private static CommandManager CommandManager { get; set; } = null!;
         public static Framework Framework { get; private set; } = null!;
         public static GameGui GameGui { get; private set; } = null!;
-
+        [PluginService] public static DataManager Data { get; private set; } = null!;
+        
     // Own Windows, Properties
         public static Configuration Configuration { get; private set; } = null!;
         public static WindowSystem WindowSystem = new("InvDupeFinder");
@@ -49,18 +54,31 @@ namespace InvDupeFinder {
             [RequiredVersion("1.0")] DalamudPluginInterface pluginInterface,
             [RequiredVersion("1.0")] CommandManager         commandManager,
             [RequiredVersion("1.0")] GameGui                gameGui,
-            [RequiredVersion("1.0")] Framework              framwork
+            [RequiredVersion("1.0")] Framework              framework
         ) {
             PluginInterface = pluginInterface;
             CommandManager = commandManager;
-            Framework = framwork;
+            Framework = framework;
 
             Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
-            InvDupeFinder.Configuration.Initialize(PluginInterface);
+            Configuration.Initialize(PluginInterface);
 
-            pluginInterface.Create<Service>();
-            Service.ExcelCache = new ExcelCache(Service.Data);
-            FrameworkService = new FrameworkService(Service.Framework);
+            //if (service == null || Service.Data == null || Service.Framework == null) {
+            //    var errors = new List<string>();
+            //    errors.AddRange(new string[] {
+            //        Service.Data == null ? "Service.Data is null" : "",
+            //        Service.Framework == null ? "Service.Data is null" : "",
+            //    });
+
+            //    var exceptionMessage = string.Join(", ", errors.Where(x => string.IsNullOrWhiteSpace(x)));
+            //    throw new Exception("Failed to load CriticalCommonLib: " + exceptionMessage);
+            //}
+
+            Service? service = pluginInterface.Create<Service>(); 
+            Service.SeTime = new SeTime();
+            Service.ExcelCache = new ExcelCache(Data, false, false, false);
+            Service.ExcelCache.PreCacheItemData();
+
             GameInterface = new GameInterface();
             CharacterMonitor = new CharacterMonitor();
             GameUi = new GameUiManager();

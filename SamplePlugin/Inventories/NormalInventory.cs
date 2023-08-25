@@ -1,6 +1,6 @@
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
-using InvDupeFinder;
+using XIVDupeFinder;
 
 using System;
 using System.Linq;

@@ -3,7 +3,7 @@ using CriticalCommonLib.Models;
 
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
-using InvDupeFinder;
+using XIVDupeFinder;
 
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ using System.Linq;
 namespace InventorySearchBar.Inventories {
     internal class RetainerInventory : Inventory {
         public override string AddonName => "InventoryRetainer";
-        protected override ulong CharacterId => Plugin.CharacterMonitor.ActiveRetainer;
+        protected override ulong CharacterId => Plugin.CharacterMonitor.ActiveRetainer.CharacterId;
         protected override InventoryCategory Category => InventoryCategory.RetainerBags;
         protected override int FirstBagOffset => (int)InventoryType.RetainerBag0;
         protected override int GridItemCount => 35;
@@ -22,6 +22,7 @@ namespace InventorySearchBar.Inventories {
         protected int _tabIndexStart = 13;
 
         public RetainerInventory() {
+            //
         }
 
         protected override List<List<bool>> GetEmptyFilter() {

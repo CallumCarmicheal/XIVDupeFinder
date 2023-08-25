@@ -1,7 +1,7 @@
 using CriticalCommonLib.Enums;
 using CriticalCommonLib.Models;
 
-using InvDupeFinder;
+using XIVDupeFinder;
 
 using System.Collections.Generic;
 using System.Linq;

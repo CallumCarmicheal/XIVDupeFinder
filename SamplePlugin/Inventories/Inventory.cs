@@ -4,13 +4,14 @@ using Dalamud.Logging;
 
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
-using InvDupeFinder;
+using XIVDupeFinder;
 
-using InventorySearchBar.Filters;
+using Lumina.Excel.GeneratedSheets;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace InventorySearchBar.Inventories {
     public abstract unsafe class Inventory {
@@ -23,7 +24,7 @@ namespace InventorySearchBar.Inventories {
 
         protected AtkUnitBase* _node => (AtkUnitBase*)_addon;
 
-        protected List<List<bool>>? _filter = null!;
+        protected List<List<bool>>? _filter { get; set; } = null!;
         protected abstract List<List<bool>> GetEmptyFilter();
 
         protected abstract ulong CharacterId { get; }
@@ -47,52 +48,42 @@ namespace InventorySearchBar.Inventories {
         }
 
         public virtual void DiscoverDuplicates() {
-            //if (text.Length < 2)
-            //{
-            //    _filter = null;
-            //    return;
-            //}
-
             _filter = GetEmptyFilter();
 
-            // get items
+            // Get items and group them by their Item Id
             List<InventoryItem> items = GetSortedItems();
+            var groupedItems = items
+                // Select items that are not fully stacked and can be stacked
+                .Where  ( item => item.Item.StackSize > 1 && item.FullStack == false ) 
+                .GroupBy( item => item.ItemId )
+                .Select(group => new {
+                    ItemId = group.Key,
+                    Items = group.ToList(),
+                    Count = group.Count()
+                });
 
-            foreach (InventoryItem item in items) {
+            foreach ( var itemGroups in groupedItems ) {
                 try {
-                    //// apply filters
-                    //bool highlight = false;
+                    // Highlight if we have more then 1 item
+                    bool highlight = itemGroups.Count > 1;
 
-                    //if (item.Item != null)
-                    //{
-                    //    int successCount = 0;
-                    //    foreach (string term in searchTerms)
-                    //    {
-                    //        foreach (Filter filter in filters)
-                    //        {
-                    //            if (filter.FilterItem(item.Item, term))
-                    //            {
-                    //                successCount++;
-                    //                break;
-                    //            }
-                    //        }
-                    //    }
-
-                    //    // all search terms need to be found
-                    //    highlight = successCount == searchTerms.Length;
-                    //}
-
-                    //// map
-                    //int bagIndex = ContainerIndex(item) - FirstBagOffset;
-                    //if (_filter.Count > bagIndex)
-                    //{
-                    //    List<bool> bag = _filter[bagIndex];
-                    //    int slot = GridItemCount - 1 - item.SortedSlotIndex;
-                    //    if (bag.Count > slot)
-                    //    {
-                    //        bag[slot] = highlight;
-                    //    }
-                    //}
+                    try {
+                        foreach (InventoryItem item in itemGroups.Items) {
+                            // map
+                            int bagIndex = ContainerIndex(item) - FirstBagOffset;
+                            if (_filter.Count > bagIndex) {
+                                List<bool> bag = _filter[bagIndex];
+                                int slot = GridItemCount - 1 - item.SortedSlotIndex;
+                                if (bag.Count > slot) {
+                                    bag[slot] = highlight;
+                                }
+                            }
+                        }
+                    }
+                    //catch { }
+                    catch (Exception e) {
+                        PluginLog.Log(e.Message);
+                    }
                 }
                 //catch { }
                 catch (Exception e) {
@@ -135,15 +126,15 @@ namespace InventorySearchBar.Inventories {
         }
 
         protected static unsafe void SetNodeHighlight(AtkResNode* node, bool highlight) {
-            node->MultiplyRed = highlight || !node->IsVisible ? (byte)100 : (byte)20;
+            node->MultiplyRed   = highlight || !node->IsVisible ? (byte)100 : (byte)20;
             node->MultiplyGreen = highlight || !node->IsVisible ? (byte)100 : (byte)20;
-            node->MultiplyBlue = highlight || !node->IsVisible ? (byte)100 : (byte)20;
+            node->MultiplyBlue  = highlight || !node->IsVisible ? (byte)100 : (byte)20;
         }
 
         public static unsafe void SetTabHighlight(AtkResNode* tab, bool highlight) {
-            tab->MultiplyRed = highlight ? (byte)250 : (byte)100;
+            tab->MultiplyRed   = highlight ? (byte)250 : (byte)100;
             tab->MultiplyGreen = highlight ? (byte)250 : (byte)100;
-            tab->MultiplyBlue = highlight ? (byte)250 : (byte)100;
+            tab->MultiplyBlue  = highlight ? (byte)250 : (byte)100;
         }
 
         public static unsafe bool GetTabEnabled(AtkComponentBase* tab) {

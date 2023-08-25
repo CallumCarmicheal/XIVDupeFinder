@@ -1,12 +1,14 @@
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
+using XIVDupeFinder;
+
 using System;
 using System.Linq;
 
 namespace InventorySearchBar.Inventories {
     internal class LargeRetainerInventory : RetainerInventory {
         public override string AddonName => "InventoryRetainerLarge";
-        public override int OffsetX => Plugin.Settings.LargeRetainerInventoryOffset;
+        public override int OffsetX => Plugin.Configuration.LargeRetainerInventoryOffset;
 
         public LargeRetainerInventory() : base() {
             _tabCount = 3;

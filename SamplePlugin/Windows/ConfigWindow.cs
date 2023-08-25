@@ -3,7 +3,7 @@ using System.Numerics;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 
-namespace InvDupeFinder.Windows;
+namespace XIVDupeFinder.Windows;
 
 public class ConfigWindow : Window, IDisposable
 {
@@ -17,7 +17,7 @@ public class ConfigWindow : Window, IDisposable
         this.Size = new Vector2(232, 75);
         this.SizeCondition = ImGuiCond.Always;
 
-        this.Configuration = plugin.Configuration;
+        Configuration = Plugin.Configuration;
     }
 
     public void Dispose() { }
