@@ -65,12 +65,18 @@
         </Reference>
     </ItemGroup>
 
+
     <ItemGroup>
-      <EditorConfigFiles Remove="C:\Programming\CSharp\FFXIV\InventoryDupeFinder\SamplePlugin\.editorconfig" />
+        <Content Include="$(ProjectDir)XIVDupeFinder.json" CopyToOutputDirectory="Always" />
+        <Content Include="$(ProjectDir)Media\**" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <EditorConfigFiles Remove="C:\Programming\CSharp\FFXIV\InventoryDupeFinder\XIVDupeFinder\.editorconfig" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Include="C:\Programming\CSharp\FFXIV\InventoryDupeFinder\SamplePlugin\.editorconfig" />
+      <None Include="C:\Programming\CSharp\FFXIV\InventoryDupeFinder\XIVDupeFinder\.editorconfig" />
     </ItemGroup>
 
     <ItemGroup>

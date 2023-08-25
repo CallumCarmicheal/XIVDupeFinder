@@ -9,12 +9,15 @@ public class ConfigWindow : Window, IDisposable
 {
     private Configuration Configuration;
 
+    private int[] _tabHighlightColour = new int[3] { 0, 0, 0 };
+    private int[] _itemHighlightColour = new int[3] { 0, 0, 0 };
+
     public ConfigWindow(Plugin plugin) : base(
         "XIVDupeFinder Config",
         ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
         ImGuiWindowFlags.NoScrollWithMouse)
     {
-        this.Size = new Vector2(400, 200);
+        this.Size = new Vector2(420, 300);
         this.SizeCondition = ImGuiCond.Always;
 
         Configuration = Plugin.Configuration;
@@ -29,15 +32,17 @@ public class ConfigWindow : Window, IDisposable
 
     public void Dispose() { }
 
-    int[] _tabHighlightColour  = new int[3] { 0, 0, 0 };
-    int[] _itemHighlightColour = new int[3] { 0, 0, 0 };
-
     public override void Draw()
     {
         bool boolValue;
         bool saveChanges = false;
 
-        // can't ref a property, so use a local copy
+        boolValue = this.Configuration.OnlyDuringKeyModifier;
+        if (ImGui.Checkbox("Only show when holding ALT (Modifier)", ref boolValue)) {
+            this.Configuration.OnlyDuringKeyModifier = boolValue;
+            saveChanges = true;
+        }
+
         boolValue = this.Configuration.HighlightDuplicates;
         if (ImGui.Checkbox("Highlight Duplicates", ref boolValue)) {
             this.Configuration.HighlightDuplicates = boolValue;
@@ -77,10 +82,11 @@ public class ConfigWindow : Window, IDisposable
             Configuration.TabHighlightColour[2] = (byte)_tabHighlightColour[2];
         }
 
-        if (saveChanges) {
+        if (saveChanges) 
             this.Configuration.Save();
-        }
 
         ImGui.Text("Special thanks to Tischel for their work on InventorySearchBar.");
+        ImGui.Text("Please enable the modified (holding ALT) if you experience any\nproblems with other plugins such as InventorySearchBar!");
+        ImGui.Text("Modifier (ALT) Pressed: " + (KeyboardHelper.Instance?.IsKeyPressed((int)Keys.Menu) == true ? "True" : "False"));
     }
 }

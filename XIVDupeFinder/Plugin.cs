@@ -22,11 +22,12 @@ using CriticalCommonLib.Time;
 using Dalamud.Data;
 using Dalamud.Logging;
 using Dalamud.Game.ClientState;
+using ImGuiNET;
 
 namespace XIVDupeFinder {
     public sealed class Plugin : IDalamudPlugin, IDisposable {
         public string Name => "XIVDupeFinder";
-        private const string CommandName = "/xlinvdupes";
+        private const string CommandName = "/xivdupes";
 
     // Dalamud Properties
         [PluginService] public static ClientState ClientState { get; private set; } = null!;
@@ -57,6 +58,8 @@ namespace XIVDupeFinder {
             Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             Configuration.Initialize(PluginInterface);
 
+            KeyboardHelper.Initialize();
+
             Service? service = PluginInterface.Create<Service>(); 
             Service.SeTime = new SeTime();
             Service.ExcelCache = new ExcelCache(Data, false, false, false);
@@ -86,6 +89,7 @@ namespace XIVDupeFinder {
         }
 
         private void Update(Framework framework) {
+            KeyboardHelper.Instance?.Update();
             _manager.Update();
         }
 
@@ -98,6 +102,8 @@ namespace XIVDupeFinder {
             ConfigWindow.Dispose();
 
             CommandManager.RemoveHandler(CommandName);
+
+            KeyboardHelper.Instance?.Dispose();
 
             Dispose(true);
             GC.SuppressFinalize(this);
@@ -143,8 +149,14 @@ namespace XIVDupeFinder {
 
             // Apply our highlighting
             if (Configuration.HighlightDuplicates) {
-                _manager.ActiveInventory.DiscoverDuplicates();
-                _manager.ActiveInventory.UpdateHighlights();
+                bool highlightEnabled = Plugin.Configuration.OnlyDuringKeyModifier
+                    ? KeyboardHelper.Instance?.IsKeyPressed((int)Keys.Menu) == true
+                    : true;
+
+                if (highlightEnabled) {
+                    _manager.ActiveInventory.DiscoverDuplicates();
+                    _manager.ActiveInventory.UpdateHighlights();
+                }
             }
         }
 

@@ -9,13 +9,15 @@ namespace XIVDupeFinder
     {
         public int Version { get; set; } = 0;
 
-        public bool HighlightRandomColours { get; set; } = false;
+
+        public bool OnlyDuringKeyModifier { get; set; } = true;
+        public bool HighlightRandomColours { get; set; } = true;
 
         public bool HighlightDuplicates { get; set; } = true;
         public bool HightlightTabs { get; set; } = true;
 
         public byte[] TabHighlightColour  { get; set; } = new byte[3] { 80, 80, 80 };
-        public byte[] ItemHighlightColour { get; set; } = new byte[3] { 80, 80, 80 };
+        public byte[] ItemHighlightColour { get; set; } = new byte[3] { 40, 80, 40 };
 
         // offsets, taken from InventorySearchBar
         public int NormalInventoryOffset { get; set; } = 20;

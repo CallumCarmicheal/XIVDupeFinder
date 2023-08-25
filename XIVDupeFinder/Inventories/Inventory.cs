@@ -25,6 +25,7 @@ namespace XIVDupeFinder.Inventories {
     }
 
     public abstract unsafe class Inventory {
+
         public abstract string AddonName { get; }
 
         protected IntPtr _addon = IntPtr.Zero;
@@ -75,10 +76,14 @@ namespace XIVDupeFinder.Inventories {
                     Count = group.Count()
                 });
 
+            //bool highlightEnabled = Plugin.Configuration.OnlyDuringKeyModifier
+            //    ? KeyboardHelper.Instance?.IsKeyPressed((int)Keys.Menu)
+            //    : true;
+
             foreach (var itemGroups in groupedItems) {
                 try {
                     // Highlight if we have more then 1 item
-                    bool highlight = itemGroups.Count > 1;
+                    bool highlight = itemGroups.Count > 1;// && highlightEnabled;
 
                     try {
                         foreach (InventoryItem item in itemGroups.Items) {
@@ -148,8 +153,8 @@ namespace XIVDupeFinder.Inventories {
 
         protected static unsafe void SetNodeHighlight(AtkResNode* node, HighlightItem hd) {
             if (Plugin.Configuration.HighlightRandomColours) {
-                byte r = 100, g = 100, b = 100;
-                
+                byte r = 99, g = 99, b = 99;
+
                 if (hd.filtered)
                     (r, g, b) = hd.colour;
 
@@ -159,18 +164,16 @@ namespace XIVDupeFinder.Inventories {
             }
 
             else {
-                node->MultiplyRed = hd.filtered ? Plugin.Configuration.ItemHighlightColour[0] : (byte)100;
+                node->MultiplyRed   = hd.filtered ? Plugin.Configuration.ItemHighlightColour[0] : (byte)100;
                 node->MultiplyGreen = hd.filtered ? Plugin.Configuration.ItemHighlightColour[1] : (byte)100;
-                node->MultiplyBlue = hd.filtered ? Plugin.Configuration.ItemHighlightColour[2] : (byte)100;
+                node->MultiplyBlue  = hd.filtered ? Plugin.Configuration.ItemHighlightColour[2] : (byte)100;
             }
-
         }
 
         public static unsafe void SetTabHighlight(AtkResNode* tab, bool highlight) {
             tab->MultiplyRed = highlight ? Plugin.Configuration.TabHighlightColour[0] : (byte)100;
             tab->MultiplyGreen = highlight ? Plugin.Configuration.TabHighlightColour[1] : (byte)100;
             tab->MultiplyBlue = highlight ? Plugin.Configuration.TabHighlightColour[2] : (byte)100;
-
         }
 
         public static unsafe bool GetTabEnabled(AtkComponentBase* tab) {
