@@ -1,18 +1,18 @@
-﻿using System;
+using System;
 using System.Numerics;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 using ImGuiScene;
 
-namespace SamplePlugin.Windows;
+namespace InvDupeFinder.Windows;
 
 public class MainWindow : Window, IDisposable
 {
     private TextureWrap GoatImage;
     private Plugin Plugin;
 
-    public MainWindow(Plugin plugin, TextureWrap goatImage) : base(
-        "My Amazing Window", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
+    public MainWindow(Plugin plugin, TextureWrap goatImage) 
+        : base("Inventory Dupe Finder", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse)
     {
         this.SizeConstraints = new WindowSizeConstraints
         {
@@ -31,10 +31,9 @@ public class MainWindow : Window, IDisposable
 
     public override void Draw()
     {
-        ImGui.Text($"The random config bool is {this.Plugin.Configuration.SomePropertyToBeSavedAndWithADefault}");
+        ImGui.Text($"The random config bool is {this.Plugin.Configuration.TestProperty}");
 
-        if (ImGui.Button("Show Settings"))
-        {
+        if (ImGui.Button("Show Settings")) {
             this.Plugin.DrawConfigUI();
         }
 
