@@ -15,6 +15,7 @@ namespace XIVDupeFinder
 
         public bool HighlightDuplicates { get; set; } = true;
         public bool HightlightTabs { get; set; } = true;
+        public bool HighlightOnlyActiveWindow { get; set; } = false;
 
         public byte[] TabHighlightColour  { get; set; } = new byte[3] { 80, 80, 80 };
         public byte[] ItemHighlightColour { get; set; } = new byte[3] { 40, 80, 40 };

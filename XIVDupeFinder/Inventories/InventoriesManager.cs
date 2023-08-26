@@ -1,3 +1,5 @@
+using Dalamud.Game.ClientState.Keys;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,7 +7,11 @@ using System.Linq;
 namespace XIVDupeFinder.Inventories {
     internal class InventoriesManager : IDisposable {
         private List<Inventory> _inventories;
-        public Inventory? ActiveInventory = null;
+        public bool ChangedActiveInventory { get; private set; } = false;
+        public Inventory? LastInventory { get; private set; } = null!;
+        public Inventory? ActiveInventory { get; private set; } = null!;
+        public IEnumerable<Inventory?> OpenInventories { get; private set; } = null!;
+
 
         public InventoriesManager() {
             _inventories = new List<Inventory>()
@@ -26,7 +32,17 @@ namespace XIVDupeFinder.Inventories {
                 inventory.UpdateAddonReference();
             }
 
-            ActiveInventory = _inventories.FirstOrDefault(o => o.IsVisible && o.IsFocused());
+            // Apply our highlighting
+            bool highlightEnabled = Plugin.Configuration.OnlyDuringKeyModifier
+                   ? Plugin.KeyState[VirtualKey.MENU]
+                   : Plugin.Configuration.HighlightDuplicates;
+
+            if (highlightEnabled) {
+                LastInventory = ActiveInventory;
+                ActiveInventory = _inventories.FirstOrDefault(o => o.IsVisible && o.IsFocused());
+                ChangedActiveInventory = LastInventory != ActiveInventory;
+                OpenInventories = _inventories.Where(o => o.IsVisible);
+            }
         }
 
         public void ClearHighlights() {

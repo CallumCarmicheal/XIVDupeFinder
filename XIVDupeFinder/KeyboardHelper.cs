@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace XIVDupeFinder {
+    /*
     internal class KeyboardHelper {
         #region singleton
         private KeyboardHelper() {
@@ -39,11 +40,11 @@ namespace XIVDupeFinder {
         }
 
         public bool IsKeyPressed(int key) {
-            if (!IsGameFocused()) return false;
-
-            if (key != (int)Keys.Back && !_supportedKeys.Contains((Keys)key)) {
-                return false;
-            }
+            //if (!IsGameFocused()) return false;
+            
+            // if (key != (int)Keys.Back && !_supportedKeys.Contains((Keys)key)) {
+            //     return false;
+            // }
 
             return _keyStates[key] > 1;
         }
@@ -978,4 +979,6 @@ namespace XIVDupeFinder {
         //     The ALT modifier key.
         Alt = 262144
     }
+
+    //*/
 }

@@ -23,21 +23,27 @@ using Dalamud.Data;
 using Dalamud.Logging;
 using Dalamud.Game.ClientState;
 using ImGuiNET;
+using Dalamud.Game.ClientState.Keys;
 
 namespace XIVDupeFinder {
     public sealed class Plugin : IDalamudPlugin, IDisposable {
         public string Name => "XIVDupeFinder";
         private const string CommandName = "/xivdupes";
 
+        private static Plugin? _instance = null!;
+        public static Plugin? Instance { get => _instance; }
+
     // Dalamud Properties
-        [PluginService] public static ClientState ClientState { get; private set; } = null!;
-        [PluginService] private static DalamudPluginInterface PluginInterface { get; set; } = null!;
-        [PluginService] private static CommandManager CommandManager { get; set; } = null!;
-        [PluginService] public static Framework Framework { get; private set; } = null!;
-        [PluginService] public static GameGui GameGui { get; private set; } = null!;
-        [PluginService] public static DataManager Data { get; private set; } = null!;
+        [PluginService, RequiredVersion("1.0")] public static ClientState ClientState { get; private set; } = null!;
+        [PluginService, RequiredVersion("1.0")] private static DalamudPluginInterface PluginInterface { get; set; } = null!;
+        [PluginService, RequiredVersion("1.0")] private static CommandManager CommandManager { get; set; } = null!;
+        [PluginService, RequiredVersion("1.0")] public static Framework Framework { get; private set; } = null!;
+        [PluginService, RequiredVersion("1.0")] public static GameGui GameGui { get; private set; } = null!;
+        [PluginService, RequiredVersion("1.0")] public static DataManager Data { get; private set; } = null!;
+
+        [PluginService, RequiredVersion("1.0")] public static KeyState KeyState { get; private set; } = null!;
         
-    // Own Windows, Properties
+        // Own Windows, Properties
         public static Configuration Configuration { get; private set; } = null!;
         public static WindowSystem WindowSystem = new("XIVDupeFinder");
         private static InventoriesManager _manager = null!;
@@ -55,10 +61,12 @@ namespace XIVDupeFinder {
         public static CraftMonitor CraftMonitor { get; private set; } = null!;
 
         public Plugin() {
+            _instance = this;
+
             Configuration = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
             Configuration.Initialize(PluginInterface);
 
-            KeyboardHelper.Initialize();
+            //KeyboardHelper.Initialize();
 
             Service? service = PluginInterface.Create<Service>(); 
             Service.SeTime = new SeTime();
@@ -86,10 +94,11 @@ namespace XIVDupeFinder {
             PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
 
             _manager = new InventoriesManager();
+
+            // Hook game events
         }
 
         private void Update(Framework framework) {
-            KeyboardHelper.Instance?.Update();
             _manager.Update();
         }
 
@@ -102,8 +111,6 @@ namespace XIVDupeFinder {
             ConfigWindow.Dispose();
 
             CommandManager.RemoveHandler(CommandName);
-
-            KeyboardHelper.Instance?.Dispose();
 
             Dispose(true);
             GC.SuppressFinalize(this);
@@ -136,7 +143,7 @@ namespace XIVDupeFinder {
             // In response to the slash command, just display our main ui
             ConfigWindow.IsOpen = true;
         }
-        
+
         private unsafe void DrawUI() {
             WindowSystem.Draw();
 
@@ -144,20 +151,43 @@ namespace XIVDupeFinder {
                 return;
 
             // If we do not have an active inventory close.
-            if (_manager.ActiveInventory == null)
+            if (_manager.ActiveInventory == null) {
+                _manager.ClearHighlights();
                 return;
+            }
 
             // Apply our highlighting
-            if (Configuration.HighlightDuplicates) {
-                bool highlightEnabled = Plugin.Configuration.OnlyDuringKeyModifier
-                    ? KeyboardHelper.Instance?.IsKeyPressed((int)Keys.Menu) == true
-                    : true;
+            bool highlightEnabled = Plugin.Configuration.HighlightDuplicates && Plugin.Configuration.OnlyDuringKeyModifier
+                   ? KeyState[VirtualKey.MENU]
+                   : Configuration.HighlightDuplicates;
 
-                if (highlightEnabled) {
+            // If we are highlighting the duplicates
+            if (highlightEnabled) {
+                // If we are highlighting multiple windows
+                if (Configuration.HighlightOnlyActiveWindow == false) {
+                    foreach(var inventory in _manager.OpenInventories) {
+                        if (inventory == null) continue;
+
+                        inventory.DiscoverDuplicates();
+                        inventory.UpdateHighlights();
+                    }
+                }
+
+                // Only highlight active window
+                else {
+                    // Check if we have changed inventory and remove colours from the last
+                    if (_manager.ChangedActiveInventory && _manager.LastInventory != null)
+                        _manager.LastInventory.ClearHighlights();
+
+
                     _manager.ActiveInventory.DiscoverDuplicates();
                     _manager.ActiveInventory.UpdateHighlights();
                 }
             }
+            // If we are not highlighting anything, clear the highlights.
+            else {
+                _manager.ClearHighlights();
+            } 
         }
 
         public void DrawConfigUI() {

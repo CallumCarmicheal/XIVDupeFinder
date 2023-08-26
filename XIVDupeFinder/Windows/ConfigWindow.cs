@@ -1,5 +1,7 @@
 using System;
 using System.Numerics;
+
+using Dalamud.Game.ClientState.Keys;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
 
@@ -17,7 +19,7 @@ public class ConfigWindow : Window, IDisposable
         ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoScrollbar |
         ImGuiWindowFlags.NoScrollWithMouse)
     {
-        this.Size = new Vector2(420, 300);
+        this.Size = new Vector2(440, 320);
         this.SizeCondition = ImGuiCond.Always;
 
         Configuration = Plugin.Configuration;
@@ -37,29 +39,48 @@ public class ConfigWindow : Window, IDisposable
         bool boolValue;
         bool saveChanges = false;
 
-        boolValue = this.Configuration.OnlyDuringKeyModifier;
-        if (ImGui.Checkbox("Only show when holding ALT (Modifier)", ref boolValue)) {
-            this.Configuration.OnlyDuringKeyModifier = boolValue;
-            saveChanges = true;
-        }
-
         boolValue = this.Configuration.HighlightDuplicates;
         if (ImGui.Checkbox("Highlight Duplicates", ref boolValue)) {
             this.Configuration.HighlightDuplicates = boolValue;
             saveChanges = true;
+
+            Plugin.ClearHighlights();
+        }
+
+        boolValue = this.Configuration.OnlyDuringKeyModifier;
+        if (ImGui.Checkbox("* Only show when holding ALT (Modifier)", ref boolValue)) {
+            this.Configuration.OnlyDuringKeyModifier = boolValue;
+            saveChanges = true;
+
+            Plugin.ClearHighlights();
+        }
+
+
+        boolValue = this.Configuration.HighlightOnlyActiveWindow;
+        if (ImGui.Checkbox("Only active inventory window", ref boolValue)) {
+            this.Configuration.HighlightOnlyActiveWindow = boolValue;
+            saveChanges = true;
+
+            Plugin.ClearHighlights();
         }
 
         boolValue = this.Configuration.HightlightTabs;
         if (ImGui.Checkbox("Highlight Inventory Tabs", ref boolValue)) {
             this.Configuration.HightlightTabs = boolValue;
             saveChanges = true;
+
+            Plugin.ClearHighlights();
         }
 
         boolValue = this.Configuration.HighlightRandomColours;
-        if (ImGui.Checkbox("Random Item Colour", ref boolValue)) {
+        if (ImGui.Checkbox("Use Pastel Colour Pallete", ref boolValue)) {
             this.Configuration.HighlightRandomColours = boolValue;
             saveChanges = true;
+
+            Plugin.ClearHighlights();
         }
+
+        if (boolValue) ImGui.BeginDisabled();
 
         ImGui.DragInt3("Item Highlight Colour", ref _itemHighlightColour[0], 1, 10, 100);
         if (_itemHighlightColour[0] != Configuration.ItemHighlightColour[0]
@@ -71,6 +92,8 @@ public class ConfigWindow : Window, IDisposable
             Configuration.ItemHighlightColour[1] = (byte)_itemHighlightColour[1];
             Configuration.ItemHighlightColour[2] = (byte)_itemHighlightColour[2];
         }
+
+        if (boolValue) ImGui.EndDisabled();
 
         ImGui.DragInt3("Tab Highlight Colour", ref _tabHighlightColour[0], 1, 10, 100);
         if (_tabHighlightColour[0] != Configuration.TabHighlightColour[0]
@@ -87,6 +110,7 @@ public class ConfigWindow : Window, IDisposable
 
         ImGui.Text("Special thanks to Tischel for their work on InventorySearchBar.");
         ImGui.Text("Please enable the modified (holding ALT) if you experience any\nproblems with other plugins such as InventorySearchBar!");
-        ImGui.Text("Modifier (ALT) Pressed: " + (KeyboardHelper.Instance?.IsKeyPressed((int)Keys.Menu) == true ? "True" : "False"));
+        ImGui.Text("Modifier (ALT) Pressed: " + (Plugin.KeyState[VirtualKey.MENU] ? "True" : "False"));
+        ImGui.Text("\n* Recommended Options");
     }
 }

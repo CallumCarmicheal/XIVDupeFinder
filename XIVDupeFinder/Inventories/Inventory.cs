@@ -65,35 +65,34 @@ namespace XIVDupeFinder.Inventories {
             _filter = GetEmptyFilter();
 
             // Get items and group them by their Item Id
-            List<InventoryItem> items = GetSortedItems();
-            var groupedItems = items
+            //List<InventoryItem> items = GetSortedItems();
+            var groupedItems = Plugin.InventoryMonitor.GetSpecificInventory(CharacterId, Category)
                 // Select items that are not fully stacked and can be stacked
-                .Where(item => item.Item.StackSize > 1 && item.FullStack == false)
-                .GroupBy(item => item.ItemId + "-" + (item.IsHQ ? "HQ" : "NQ"))
+                .Where(item => item.ItemId != 0 && item.Item.StackSize > 1 && item.FullStack == false)
+                .GroupBy(item => item.ItemId + (item.IsHQ ? "HQ" : "NQ"))
                 .Select(group => new {
                     ItemIdHQ = group.Key,
                     Items = group.ToList(),
                     Count = group.Count()
                 });
 
-            //bool highlightEnabled = Plugin.Configuration.OnlyDuringKeyModifier
-            //    ? KeyboardHelper.Instance?.IsKeyPressed((int)Keys.Menu)
-            //    : true;
-
             foreach (var itemGroups in groupedItems) {
                 try {
                     // Highlight if we have more then 1 item
-                    bool highlight = itemGroups.Count > 1;// && highlightEnabled;
+                    bool highlight = itemGroups.Count > 1;
 
                     try {
                         foreach (InventoryItem item in itemGroups.Items) {
                             // Map
                             int bagIndex = ContainerIndex(item) - FirstBagOffset;
+
                             if (_filter.Count > bagIndex) {
                                 List<HighlightItem> bag = _filter[bagIndex];
                                 int slot = GridItemCount - 1 - item.SortedSlotIndex;
+
                                 if (bag.Count > slot) {
                                     (byte R, byte G, byte B) rgb;
+
                                     if (dictItemColours.ContainsKey(item.ItemId) == false) {
                                         rgb = uniqueColourGen.GetColorNormalisedByte(0, 100);
                                         dictItemColours.Add(item.ItemId, rgb);
