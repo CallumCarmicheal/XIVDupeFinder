@@ -20,6 +20,7 @@ namespace XIVDupeFinder
         public byte[] TabHighlightColour  { get; set; } = new byte[3] { 80, 80, 80 };
         public byte[] ItemHighlightColour { get; set; } = new byte[3] { 40, 80, 40 };
 
+        #region Address Offsets
         // offsets, taken from InventorySearchBar
         public int NormalInventoryOffset { get; set; } = 20;
         public int LargeInventoryOffset { get; set; } = 0;
@@ -28,6 +29,7 @@ namespace XIVDupeFinder
         public int RetainerInventoryOffset { get; set; } = 18;
         public int LargeRetainerInventoryOffset { get; set; } = 0;
         public int ArmouryInventoryOffset { get; set; } = 30;
+        #endregion
 
         #region Methods
 

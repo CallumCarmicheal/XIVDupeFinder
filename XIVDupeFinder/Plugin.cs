@@ -156,6 +156,7 @@ namespace XIVDupeFinder {
             DrawInventoryHighlights();
         }
 
+        private bool shouldClearHighlights = true;
         private unsafe void DrawInventoryHighlights() {
             // Check if any required variables are null
             if (Configuration == null || ClientState.LocalPlayer == null || _manager == null)
@@ -168,7 +169,11 @@ namespace XIVDupeFinder {
 
             // If we do not have an active inventory then reset the highlights.
             if (_manager.ActiveInventory == null) {
-                _manager.ClearHighlights();
+                if (shouldClearHighlights) {
+                    _manager.ClearHighlights();
+                    shouldClearHighlights = false;
+                }
+
                 return;
             }
 
@@ -179,6 +184,8 @@ namespace XIVDupeFinder {
 
             // If we are highlighting the duplicates
             if (highlightEnabled) {
+                shouldClearHighlights = true;
+
                 // If we are highlighting multiple windows
                 if (Configuration.HighlightOnlyActiveWindow == false) {
                     foreach (var inventory in _manager.OpenInventories) {
@@ -201,7 +208,10 @@ namespace XIVDupeFinder {
             }
             // If we are not highlighting anything, clear the highlights.
             else {
-                _manager.ClearHighlights();
+                if (shouldClearHighlights) {
+                    _manager.ClearHighlights();
+                    shouldClearHighlights = false;
+                }
             }
         }
 
