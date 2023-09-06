@@ -73,6 +73,7 @@ namespace XIVDupeFinder {
             Service.ExcelCache = new ExcelCache(Data, false, false, false);
             Service.ExcelCache.PreCacheItemData();
 
+            FrameworkService = new FrameworkService(Framework);
             GameInterface = new GameInterface();
             CharacterMonitor = new CharacterMonitor();
             GameUi = new GameUiManager();
@@ -120,23 +121,29 @@ namespace XIVDupeFinder {
             if (!disposing) 
                 return;
 
-            ClearHighlights();
+            // Remove tick and framework events
+            Framework.Update -= Update;
+            PluginInterface.UiBuilder.Draw -= DrawUI;
+            PluginInterface.UiBuilder.OpenConfigUi -= DrawConfigUI;
 
+            // Reset our highlights
+            try { ClearHighlights(); } catch { }
+
+            // Remove our crit lib components
             InventoryMonitor.Dispose();
+            InventoryScanner.Dispose();
+
+            FrameworkService.Dispose();
             GameUi.Dispose();
             CharacterMonitor.Dispose();
             CraftMonitor.Dispose();
-            InventoryScanner.Dispose();
             OdrScanner.Dispose();
-
             GameInterface.Dispose();
+
             Service.ExcelCache.Destroy();
 
+            // Remove our manager
             _manager.Dispose();
-
-            Framework.Update += Update;
-            PluginInterface.UiBuilder.Draw += DrawUI;
-            PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
         }
 
         private void OnCommand(string command, string args) {
@@ -146,26 +153,35 @@ namespace XIVDupeFinder {
 
         private unsafe void DrawUI() {
             WindowSystem.Draw();
+            DrawInventoryHighlights();
+        }
 
-            if (Configuration == null || ClientState.LocalPlayer == null || _manager == null) 
+        private unsafe void DrawInventoryHighlights() {
+            // Check if any required variables are null
+            if (Configuration == null || ClientState.LocalPlayer == null || _manager == null)
                 return;
 
-            // If we do not have an active inventory close.
+            // Check if we are enabled or disabled.
+            var enabled = Plugin.Configuration.HighlightDuplicates;
+            if (enabled == false)
+                return;
+
+            // If we do not have an active inventory then reset the highlights.
             if (_manager.ActiveInventory == null) {
                 _manager.ClearHighlights();
                 return;
             }
 
             // Apply our highlighting
-            bool highlightEnabled = Plugin.Configuration.HighlightDuplicates && Plugin.Configuration.OnlyDuringKeyModifier
+            bool highlightEnabled = Plugin.Configuration.OnlyDuringKeyModifier
                    ? KeyState[VirtualKey.MENU]
-                   : Configuration.HighlightDuplicates;
+                   : enabled;
 
             // If we are highlighting the duplicates
             if (highlightEnabled) {
                 // If we are highlighting multiple windows
                 if (Configuration.HighlightOnlyActiveWindow == false) {
-                    foreach(var inventory in _manager.OpenInventories) {
+                    foreach (var inventory in _manager.OpenInventories) {
                         if (inventory == null) continue;
 
                         inventory.DiscoverDuplicates();
@@ -179,7 +195,6 @@ namespace XIVDupeFinder {
                     if (_manager.ChangedActiveInventory && _manager.LastInventory != null)
                         _manager.LastInventory.ClearHighlights();
 
-
                     _manager.ActiveInventory.DiscoverDuplicates();
                     _manager.ActiveInventory.UpdateHighlights();
                 }
@@ -187,7 +202,7 @@ namespace XIVDupeFinder {
             // If we are not highlighting anything, clear the highlights.
             else {
                 _manager.ClearHighlights();
-            } 
+            }
         }
 
         public void DrawConfigUI() {
