@@ -3,7 +3,7 @@
     <PropertyGroup>
         <Authors></Authors>
         <Company></Company>
-        <Version>0.0.1.0</Version>
+        <Version>1.0.1.0</Version>
         <Description>XIVDupeFinder - Highlight duplicated stackable items in your inventories.</Description>
         <Copyright></Copyright>
         <PackageProjectUrl>https://github.com/goatcorp/SamplePlugin</PackageProjectUrl>
@@ -27,7 +27,7 @@
     <PropertyGroup>
         <DalamudLibPath>$(appdata)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-        <FileVersion>1.0.0.0</FileVersion>
+        <FileVersion>1.0.1.0</FileVersion>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'">
