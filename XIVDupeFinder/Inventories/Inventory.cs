@@ -65,10 +65,11 @@ namespace XIVDupeFinder.Inventories {
             _filter = GetEmptyFilter();
 
             // Get items and group them by their Item Id
-            //List<InventoryItem> items = GetSortedItems();
-            var groupedItems = Plugin.InventoryMonitor.GetSpecificInventory(CharacterId, Category)
+            var inventoryItems = GetSortedItems()
+                .Where(item => item.ItemId != 0 && item.Item.StackSize > 1 && item.FullStack == false);
+
+            var groupedItems = inventoryItems
                 // Select items that are not fully stacked and can be stacked
-                .Where(item => item.ItemId != 0 && item.Item.StackSize > 1 && item.FullStack == false)
                 .GroupBy(item => item.ItemId + (item.IsHQ ? "HQ" : "NQ"))
                 .Select(group => new {
                     ItemIdHQ = group.Key,
@@ -105,7 +106,6 @@ namespace XIVDupeFinder.Inventories {
                             }
                         }
                     }
-                    //catch { }
                     catch (Exception e) {
                         PluginLog.Log(e.Message);
                     }
@@ -117,9 +117,8 @@ namespace XIVDupeFinder.Inventories {
             }
         }
 
-        protected virtual List<InventoryItem> GetSortedItems() {
-            return Plugin.InventoryMonitor.GetSpecificInventory(CharacterId, Category)
-                .Where(item => item.ItemId != 0).ToList();
+        protected virtual IEnumerable<InventoryItem> GetSortedItems() {
+            return Plugin.InventoryMonitor.GetSpecificInventory(CharacterId, Category);
         }
 
         protected virtual int ContainerIndex(InventoryItem item) {
@@ -157,9 +156,9 @@ namespace XIVDupeFinder.Inventories {
                 if (hd.filtered)
                     (r, g, b) = hd.colour;
 
-                node->MultiplyRed = r;
+                node->MultiplyRed   = r;
                 node->MultiplyGreen = g;
-                node->MultiplyBlue = b;
+                node->MultiplyBlue  = b;
             }
 
             else {

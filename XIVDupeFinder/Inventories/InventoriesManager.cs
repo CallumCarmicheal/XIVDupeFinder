@@ -1,4 +1,5 @@
 using Dalamud.Game.ClientState.Keys;
+using Dalamud.Logging;
 
 using System;
 using System.Collections.Generic;
@@ -28,9 +29,8 @@ namespace XIVDupeFinder.Inventories {
         }
 
         public void Update() {
-            foreach (Inventory inventory in _inventories) {
+            foreach (Inventory inventory in _inventories) 
                 inventory.UpdateAddonReference();
-            }
 
             // Apply our highlighting
             bool highlightEnabled = Plugin.Configuration.OnlyDuringKeyModifier
@@ -42,6 +42,8 @@ namespace XIVDupeFinder.Inventories {
                 ActiveInventory = _inventories.FirstOrDefault(o => o.IsVisible && o.IsFocused());
                 ChangedActiveInventory = LastInventory != ActiveInventory;
                 OpenInventories = _inventories.Where(o => o.IsVisible);
+
+                //PluginLog.Debug("Open Inventories: " + OpenInventories.Count() + "; " + string.Join(", ", OpenInventories.Select(x => x?.AddonName)));
             }
         }
 

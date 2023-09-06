@@ -37,7 +37,7 @@ namespace XIVDupeFinder.Inventories {
             return emptyFilter;
         }
 
-        protected override List<InventoryItem> GetSortedItems() {
+        protected override IEnumerable<InventoryItem> GetSortedItems() {
             List<InventoryItem> list = new List<InventoryItem>();
             list.AddRange(Plugin.InventoryMonitor.GetSpecificInventory(CharacterId, InventoryCategory.CharacterSaddleBags));
             list.AddRange(Plugin.InventoryMonitor.GetSpecificInventory(CharacterId, InventoryCategory.CharacterPremiumSaddleBags));

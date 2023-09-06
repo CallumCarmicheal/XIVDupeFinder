@@ -67,8 +67,9 @@ namespace XIVDupeFinder.Inventories {
             return _currentBag;
         }
 
-        protected override List<InventoryItem> GetSortedItems() {
-            return Plugin.InventoryMonitor.GetSpecificInventory(CharacterId, Category).Where(item => (int)item.SortedContainer == _currentBag).ToList();
+        protected override IEnumerable<InventoryItem> GetSortedItems() {
+            return Plugin.InventoryMonitor.GetSpecificInventory(CharacterId, Category)
+                .Where(item => (int)item.SortedContainer == _currentBag);
         }
 
         protected override unsafe void InternalUpdateHighlights(bool forced = false) {
