@@ -3,8 +3,8 @@
     <PropertyGroup>
         <Authors></Authors>
         <Company></Company>
-        <Version>0.0.0.1</Version>
-        <Description>A sample plugin.</Description>
+        <Version>0.0.1.0</Version>
+        <Description>XIVDupeFinder - Highlight duplicated stackable items in your inventories.</Description>
         <Copyright></Copyright>
         <PackageProjectUrl>https://github.com/goatcorp/SamplePlugin</PackageProjectUrl>
     </PropertyGroup>
